@@ -1,0 +1,36 @@
+    public void download(HttpServletResponse response) throws Exception{
+
+    	/*
+    	 * 设置 header
+    	 */
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+    	String Name = "";
+    	String fileName = new String(Name.getBytes("UTF-8"), "iso8859-1") + sdf.format(new Date()) + ".csv";      
+        response.setHeader("Content-type", "text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\""+fileName+"\";charset=utf-8");
+        
+        /*
+         * 数据
+         */
+        List<Cust> downs = custService.findAll();
+        
+        /*
+         * 表头
+         */
+    	final String[] FILE_HEADER =  {};
+        /*
+         * 字段名
+         */
+        String[] field = {};
+        PrintWriter outputStream = response.getWriter();
+	//防止乱码
+        outputStream.write(new String(new byte[]{(byte)0xEF, (byte)0xBB, (byte)0xBF},"UTF-8"));
+        
+        CsvBeanWriter csvWriter = new CsvBeanWriter(outputStream,CsvPreference.STANDARD_PREFERENCE);
+        csvWriter.writeHeader(FILE_HEADER);
+        for (Cust down : downs) {
+		//根据格式导出
+        	csvWriter.write(down,field);
+        }
+        csvWriter.close();
+    }
